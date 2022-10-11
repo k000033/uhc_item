@@ -9,9 +9,10 @@ import {
 } from '../componentAPI/index'
 import importExcel from './importExcel';
 import detailDialog from './detailDialog';
-import btnGroup from './btnGroup'
-import addNewItem from './addNewItem'
-import exportExcel from './exportExcel.js'
+import btnGroup from './btnGroup';
+import addNewItem from './addNewItem';
+import exportExcel from './exportExcel.js';
+import noLongerBeSold from './noLongerBeSold';;
 export default createStore({
   state: {
     PromoLoading: false,
@@ -198,6 +199,7 @@ export default createStore({
     detailDialog,
     btnGroup,
     addNewItem,
-    exportExcel
+    exportExcel,
+    noLongerBeSold
   }
 })

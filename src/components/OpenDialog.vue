@@ -30,7 +30,7 @@ export default {
   },
   setup() {
     const isSaveDialog = ref(false);
-    const { fetchAgGridData, itemCheckAction, getGroupData,getDetail } =
+    const { fetchAgGridData, itemCheckAction, getGroupData, getDetail } =
       apiUseAgGridHandel();
     const ucItemParams = new apiUseUhcItemParams();
     const store = useStore();
@@ -46,18 +46,27 @@ export default {
 
     // 預設目前Dialog裡 Tab的內容
     const currentTab = ref("VerifyDetail");
+
+    // 取得背後AgGrid的資料
+    const getAgGridData = computed(() => {
+      return store.getters["detailDialog/getAgGridData"];
+    });
+
     // 點擊 Dialog裡的 其他的 Tab
     const handleClick = (tab) => {
-      const doc_id  = getAgGridData.value.DOC_ID;
-      const gid = getAgGridData.value.GID
+      const doc_id = getAgGridData.value.DOC_ID;
+      const gid = getAgGridData.value.GID;
 
-      if (tab.index == "0") { // 取得品項的明細資料
+      if (tab.index == "0") {
+        // 取得品項的明細資料
         getDetail(doc_id);
-      } else if (tab.index == "3") { //單品檢核
+      } else if (tab.index == "3") {
+        //單品檢核
         itemCheckAction(doc_id);
-      } else if (tab.index == "4") { //取得 群組資料
+      } else if (tab.index == "4") {
+        //取得 群組資料
         getGroupData(gid);
-      };
+      }
 
       // let edited = document.getElementsByClassName("editIng").length;
       // if (edited > 0) {
@@ -66,18 +75,13 @@ export default {
       // }else{
       // }
     };
-    // 取得背後AgGrid的資料
-    const getAgGridData = computed(() => {
-      return store.getters["detailDialog/getAgGridData"];
-    });
-
     //取得載入的狀態
     const loading = computed(() => {
       return store.getters["detailDialog/getDialogIsLoading"];
     });
 
     /**
-     *判斷須不需要重新撈首頁 AgGrid的資料
+     *紀錄關閉Dialog時，須不需要重新撈首頁 AgGrid的資料
      */
     const isReLoadGrid = computed(() => {
       return store.getters["getReLoad"];
@@ -109,8 +113,10 @@ export default {
      * 關閉 編輯Dialog時，如果有編輯的話，詢問是否放棄編輯
      */
     const handleClose = () => {
+      // 檢查有沒有編輯過的class(黃底)
       let edited = document.getElementsByClassName("editIng").length;
       console.log(edited);
+      // 如果有的話，詢問是否放棄修改
       if (edited > 0) {
         ElMessageBox.confirm("要放棄修改嗎?")
           .then(() => {
@@ -123,12 +129,15 @@ export default {
         getIsOpen.value = false;
       }
     };
+    
 
+    //紀錄點擊下一個Tab，如果放棄編輯，才可以到下一個Tab
     var nextTabStr = "";
     /**
      * 頁籤籤換後，如果有修改欄位的話，詢問是否放棄編輯
      */
     const DialogBeforeLeave = (nextTab, prevTab) => {
+      // 檢查有沒有編輯過的class(黃底)
       let edited = document.getElementsByClassName("editIng").length;
       if (edited > 0) {
         isSaveDialog.value = true;
@@ -138,10 +147,11 @@ export default {
     };
 
     /**
-     * 放棄修改，移除 .editIng
+     * 放棄修改，移除 .editIng.
+     * @param {Boolean} boolean
      */
-    const btnWran = (boolen) => {
-      if (boolen) {
+    const btnWran = (boolean) => {
+      if (boolean) {
         // document.getElementsByClassName("editIng")
         const boxes = document.querySelectorAll(".editIng");
         boxes.forEach((box) => {

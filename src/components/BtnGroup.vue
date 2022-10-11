@@ -7,7 +7,7 @@ import { ElNotification, ElMessage } from "element-plus";
 import uploadExcelMultiplePage from "./uploadExcelMultiplePage.vue";
 import { apiUseGuid } from "../componentAPI/index";
 import ExcelJs from "exceljs";
-import { apiToDecimal } from "../componentAPI/index";
+import { apiToDecimal,apiUseAgGridHandel } from "../componentAPI/index";
 import { apiUseAddItemParams } from "../api/index";
 export default {
   components: {
@@ -24,6 +24,7 @@ export default {
     const ucItemParams = new apiUseUhcItemParams();
     const exportExcel = new apiUseExportExcelParams();
     const addItemParams = new apiUseAddItemParams();
+    const { fetchAgGridData } = apiUseAgGridHandel();
     const excelDataList = reactive({ data: [] });
     const getCurrLineID = computed(() => {
       return store.getters["getCurrentLineID"];
@@ -47,30 +48,38 @@ export default {
       },
     });
 
-    const reFreshAgGridData = () => {
-      ucItemParams.initial();
-      store.dispatch("fetchAgGridTpe2", ucItemParams);
-    };
+    // const reFreshAgGridData = () => {
+    //   ucItemParams.initial();
+    //   store.dispatch("fetchAgGridTpe2", ucItemParams);
+    // };
 
-    // 子頁籤切換
+    // 申請裡的子頁籤切換
     const tabClick = (page) => {
       currPage.value = page;
       // ucItemParams.initial();
       // store.dispatch("fetchAgGridTpe2", ucItemParams);
-      reFreshAgGridData();
+      fetchAgGridData();
     };
 
-    //所有按鈕功能
+    /**
+     * 部分按鈕的事件
+     * 申請:揀選、退回修改、刪除
+     * 刪除:退回申請、刪除
+     * 檢核:同意
+     * 確認:返回製作
+     */
     const btnGroupAction = (action_type) => {
       // 取得被勾選的ROW
       const selectedRows = window.gridApi.getSelectedRows();
+      //判斷有沒有，勾選一筆品項
       if (selectedRows.length == 0) {
+        error("請勾選一個品項");
         return;
       }
       // console.log(selectedRows);
       // 一筆一筆去呼SP
-      let sucess_count = 0;
-      let msgCount = 0;
+      let sucess_count = 0; //成功得次數
+      let errorCount = 0; // 失敗的次數
       store.commit("setAqGridIsLoading", true);
       selectedRows.forEach((rows, key) => {
         ucItemParams.initial();
@@ -82,27 +91,30 @@ export default {
             //成功
             if (res.data[0].RTN_CODE == 0) {
               sucess_count++;
-              console.log(sucess_count);
               //  openSuccess(action_type, rows.ITEM_NAME,key);
             } else {
               //失敗
-              msgCount++;
-              openError(rows.ITEM_NAME, res.data[0].RTN_MSG, msgCount);
+              errorCount++;
+              openError(rows.ITEM_NAME, res.data[0].RTN_MSG, errorCount);
             }
             // 當最後一筆時，重撈AgGrid資料
-            if (sucess_count + msgCount == selectedRows.length) {
+            if (sucess_count + errorCount == selectedRows.length) {
               store.commit("setAqGridIsLoading", false);
-              msgCount++;
-              openSuccess(action_type, `共${sucess_count}筆`, msgCount);
+              errorCount++;
+              openSuccess(action_type, `共${sucess_count}筆`, errorCount);
               // ucItemParams.initial();
               // store.dispatch("fetchAgGridTpe2", ucItemParams);
-              reFreshAgGridData();
+              fetchAgGridData();
             }
           });
       });
     };
-    // 判斷是否顯示子頁籤
-    const applyCondition = computed(() => {
+
+    /**
+     * 只有在申請中才可出現子頁籤
+     * 判斷是否顯示子頁籤
+     */
+    const isShowSubTabs = computed(() => {
       return [10, 11, 12, 13, 14].includes(parseInt(currPage.value));
     });
 
@@ -142,83 +154,18 @@ export default {
 
             if (selectedRows.length - 1 == index) {
               setTimeout(() => {
-                reFreshAgGridData();
+             fetchAgGridData();
               }, 300);
             }
           });
       });
     };
 
-    //群組設定
-    // const btnSetGroup = () => {
-    //   const selectedRows = window.gridApi.getSelectedRows();
-    //   if (selectedRows.length < 1) {
-    //     error("至少要勾選1個品項");
-    //     return;
-    //   }
-    //   let valid = true;
-
-    //   selectedRows.forEach((item) => {
-    //     if (selectedRows[0].GID != item.GID) {
-    //       error("只能勾選一個群組");
-    //       valid = false;
-    //       return false;
-    //     }
-    //   });
-
-    //   if (!valid) {
-    //     return;
-    //   }
-
-    //   ucItemParams.initial();
-    //   ucItemParams.GID = selectedRows[0].GID;
-    //   store
-    //     .dispatch("btnGroup/btnCRUDGroup", { ...ucItemParams })
-    //     .then((res) => {
-    //       store.commit("btnGroup/setOpenCreateGroup", true);
-    //     });
-    // };
-
-    //解除群組
-    // const btnDelGroup = () => {
-    //   const selectedRows = window.gridApi.getSelectedRows();
-    //   let valid = true;
-    //   if (selectedRows.length < 1) {
-    //     error("至少要勾選1個品項");
-    //     return;
-    //   }
-
-    //   selectedRows.forEach((item) => {
-    //     if (selectedRows[0].GID != item.GID) {
-    //       error("只能勾選一個群組");
-    //       valid = false;
-    //       return false;
-    //     }
-    //   });
-
-    //   if (!valid) {
-    //     return;
-    //   }
-
-    //   selectedRows.forEach((item, index) => {
-    //     ucItemParams.initial();
-    //     ucItemParams.DOC_ID = item.DOC_ID;
-    //     ucItemParams.GID = item.DOC_ID;
-    //     store
-    //       .dispatch("btnGroup/btnCRUDGroup", { ...ucItemParams })
-    //       .then((res) => {
-    //         if (selectedRows.length - 1 == index) {
-    //           setTimeout(() => {
-    //             reFreshAgGridData();
-    //           }, 300);
-    //         }
-    //       });
-    //   });
-    // };
-
+    
     const btnRefresh_click = () => {
-      ucItemParams.initial();
-      store.dispatch("fetchAgGridTpe2", ucItemParams);
+       fetchAgGridData();
+      // ucItemParams.initial();
+      // store.dispatch("fetchAgGridTpe2", ucItemParams);
     };
 
     // 成功訊息
@@ -245,7 +192,7 @@ export default {
       ElNotification({
         title: strType,
         message: h("B", { style: "color: teal;font-weight:100" }, msg),
-        offset: key * 120+120,
+        offset: key * 120 + 120,
       });
     };
 
@@ -281,6 +228,7 @@ export default {
 
     /**
      *  自建功能
+     *  開窗
      */
     const btnAddNewItem = () => {
       if (getCurrLineID.value == "AL") {
@@ -300,25 +248,73 @@ export default {
      */
     const btnCopyAdd = () => {
       const selectedRows = window.gridApi.getSelectedRows();
-      if(selectedRows.length>1)
-      {
-        error('複製新增只能勾選一個品項');
+      if (selectedRows.length == 0) {
+        error("請勾選一個品項");
         return;
-      };
+      }
+      if (selectedRows.length > 1) {
+        error("複製新增只能勾選一個品項");
+        return;
+      }
       addItemParams.initial();
       addItemParams.ACTION_TYPE = 9;
       addItemParams.TYPE = 7;
       addItemParams.PROMO_ID = getCurrentPromoID.value;
       addItemParams.DOC_ID = selectedRows[0].DOC_ID;
       store
-          .dispatch("addNewItem/fetchAddItemAxiosData", {...addItemParams}).then((res)=>{
-             if(res.data[0].RTN_CODE==0){
-              success(res.data[0].RTN_MSG);
-             }else{
-               error(res.data[0].RTN_MSG)
-             };
-             reFreshAgGridData();
-          });
+        .dispatch("addNewItem/fetchAddItemAxiosData", { ...addItemParams })
+        .then((res) => {
+          if (res.data[0].RTN_CODE == 0) {
+            success(res.data[0].RTN_MSG);
+          } else {
+            error(res.data[0].RTN_MSG);
+          }
+          fetchAgGridData();
+        });
+    };
+
+    /**
+     * 下架
+     * 開窗
+     */
+    const btnNoLongerBeSold = () => {
+      const selectedRows = window.gridApi.getSelectedRows();
+      if (selectedRows.length == 0) {
+        error("請勾選一個品項");
+        return;
+      }
+      if (selectedRows.length > 1) {
+        error("只能勾選一個品項");
+        return;
+      }
+      store.dispatch("noLongerBeSold/setOpenDialogAction", true);
+    };
+
+    /**
+     * 抽回
+     */
+    const btnWithdraw = () => {
+      const selectedRows = window.gridApi.getSelectedRows();
+      if (selectedRows.length == 0) {
+        error("請勾選一個品項");
+        return;
+      }
+      if (selectedRows.length > 1) {
+        error("只能勾選一個品項");
+        return;
+      }
+      const doc_id = selectedRows[0].DOC_ID;
+      ucItemParams.ACTION_TYPE = 9;
+      ucItemParams.DOC_ID = doc_id;
+       store.dispatch("btnGroup/btnGroupAction", ucItemParams).then((res)=>{
+        console.log(res.data);
+         if (res.data[0].RTN_CODE == 0) {
+            success(res.data[0].RTN_MSG);
+            fetchAgGridData();
+          } else {
+            error(res.data[0].RTN_MSG);
+          }
+       });
     };
 
     let columnList = [
@@ -352,12 +348,11 @@ export default {
       { ADD_TYPE: "後補別" },
       { ADD_MEMO: "後補說明" },
 
-
       { USE_BONUS: "贈扣點" },
       { TAX_TYPE: "稅別" },
       { MEMO: "備註" },
       { TAKE_E_DAY: "取貨期限" },
-      { SALE_STOCK: "當期限量(幾組/箱)" },
+      { SALE_STOCK: "當期限量(最小單位)" },
       { STOCK_QTY: "物流加拋數量(分批填無)" },
       { _CONTRACT: "廠商聯絡人資料" },
       { ACTIVITY_NAME: "活動品名" },
@@ -409,12 +404,17 @@ export default {
                       // console.log(key)
                       if (index == 0) {
                         // 欄位
+                        // 0: {name: '品類'}
+                        // 1: {name: '活動起日'}
                         columnAry.push({ name: Object.values(key)[0] });
                       }
                       // 塞值
                       if (
+                        // 這些欄位要加百分比
+                        // key :{TYPE: "品類"}
                         Object.keys(key) == "CNT_GROSS" ||
-                        Object.keys(key) == "_GROSS"
+                        Object.keys(key) == "_GROSS" ||
+                        Object.keys(key) == "_ADD_GROSS"
                       ) {
                         ValueAry.push(
                           apiToDecimal(item[Object.keys(key)]) + "%"
@@ -442,7 +442,7 @@ export default {
       sheet.addTable({
         // 在工作表裡面指定位置、格式並用columsn與rows屬性填寫內容
         name: "table名稱", // 表格內看不到的，讓你之後想要針對這個table去做額外設定的時候，可以指定到這個table
-        ref: "A1", // 從A1開始
+        ref: "A2", // 從A1開始
         columns: excelColumn,
         rows: excelRows,
       });
@@ -456,213 +456,493 @@ export default {
       //   };
       // });
       //設定寬度
-      sheet.getColumn(1).width = 15;
-      sheet.getColumn(2).width = 15;
-      sheet.getColumn(3).width = 15;
-      sheet.getColumn(4).width = 15;
-      sheet.getColumn(5).width = 15;
-      sheet.getColumn(6).width = 15;
-      sheet.getColumn(7).width = 15;
-      sheet.getColumn(8).width = 15;
-      sheet.getColumn(9).width = 15;
-      sheet.getColumn(10).width = 15;
-      sheet.getColumn(11).width = 50;
-      sheet.getColumn(12).width = 15;
-      sheet.getColumn(13).width = 15;
-      sheet.getColumn(14).width = 15;
-      sheet.getColumn(15).width = 15;
-      sheet.getColumn(16).width = 30;
-      sheet.getColumn(17).width = 15;
-      sheet.getColumn(18).width = 15;
-      sheet.getColumn(19).width = 15;
-      sheet.getColumn(20).width = 15;
-      sheet.getColumn(21).width = 15;
-      sheet.getColumn(22).width = 15;
-      sheet.getColumn(23).width = 15;
-      sheet.getColumn(24).width = 15;
-      
-      sheet.getColumn(25).width = 15;
-      sheet.getColumn(26).width = 15;
-      sheet.getColumn(27).width = 15;
-      sheet.getColumn(28).width = 15;
-      
-      
- 
-      sheet.getColumn(29).width = 15;
-      sheet.getColumn(30).width = 15;
-      sheet.getColumn(31).width = 15;
-      sheet.getColumn(32).width = 15;
-      sheet.getColumn(33).width = 30;
-      sheet.getColumn(34).width = 30;
-      sheet.getColumn(35).width = 50;
-      sheet.getColumn(36).width = 50;
-      sheet.getColumn(37).width = 15;
 
-      sheet.getColumn(38).width = 15;
-
-      sheet.getColumn(39).width = 15;
-
-
-
+      //表身
+      sheet.getColumn(1).font = {
+        size: 10,
+      };
+      sheet.getColumn(1).width = 4.57;
       sheet.getColumn(1).alignment = {
         vertical: "middle",
         horizontal: "center",
+        wrapText: true,
       };
+
+      sheet.getColumn(2).font = {
+        size: 10,
+      };
+      sheet.getColumn(2).width = 10.71;
       sheet.getColumn(2).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(3).font = {
+        size: 10,
+      };
+      sheet.getColumn(3).width = 10.71;
       sheet.getColumn(3).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(4).font = {
+        size: 10,
+      };
+      sheet.getColumn(4).width = 5;
       sheet.getColumn(4).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(5).font = {
+        size: 10,
+      };
+      sheet.getColumn(5).width = 5;
       sheet.getColumn(5).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(6).font = {
+        size: 10,
+      };
+      sheet.getColumn(6).width = 9;
       sheet.getColumn(6).alignment = {
         vertical: "middle",
         horizontal: "left",
       };
+
+      sheet.getColumn(7).font = {
+        size: 10,
+      };
+      sheet.getColumn(7).width = 9;
       sheet.getColumn(7).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(8).font = {
+        size: 10,
+      };
+      sheet.getColumn(8).width = 9;
       sheet.getColumn(8).alignment = {
         vertical: "middle",
         horizontal: "center",
+        wrapText: true,
       };
+
+      sheet.getColumn(9).font = {
+        size: 10,
+      };
+      sheet.getColumn(9).width = 9;
       sheet.getColumn(9).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(10).font = {
+        size: 10,
+      };
+      sheet.getColumn(10).width = 14.71;
       sheet.getColumn(10).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(11).font = {
+        size: 10,
+      };
+      sheet.getColumn(11).width = 23.29;
       sheet.getColumn(11).alignment = {
         vertical: "middle",
         horizontal: "left",
+        wrapText: true,
       };
-      // sheet.getColumn(12).alignment = { vertical: "middle", horizontal: "center" };
+
+      sheet.getColumn(12).font = {
+        size: 10,
+      };
+      sheet.getColumn(12).width = 3.57;
       sheet.getColumn(12).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(13).font = {
+        size: 10,
+      };
+      sheet.getColumn(13).width = 5;
       sheet.getColumn(13).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(14).font = {
+        size: 10,
+      };
+      sheet.getColumn(14).width = 3.57;
       sheet.getColumn(14).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(15).font = {
+        size: 10,
+      };
+      sheet.getColumn(15).width = 9;
       sheet.getColumn(15).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(16).font = {
+        size: 10,
+      };
+      sheet.getColumn(16).width = 9;
       sheet.getColumn(16).alignment = {
         vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(17).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(18).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(19).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(20).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(21).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(22).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(23).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(24).alignment = {
-        vertical: "middle",
-        horizontal: "center",
+        horizontal: "right",
       };
 
+      sheet.getColumn(17).font = {
+        size: 10,
+      };
+      sheet.getColumn(17).width = 8;
+      sheet.getColumn(17).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(18).font = {
+        size: 10,
+      };
+      sheet.getColumn(18).width = 7;
+      sheet.getColumn(18).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(19).font = {
+        size: 10,
+      };
+      sheet.getColumn(19).width = 7;
+      sheet.getColumn(19).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(20).font = {
+        size: 10,
+      };
+      sheet.getColumn(20).width = 8;
+      sheet.getColumn(20).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(21).font = {
+        size: 10,
+      };
+      sheet.getColumn(21).width = 10;
+      sheet.getColumn(21).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(22).font = {
+        size: 10,
+      };
+      sheet.getColumn(22).width = 8;
+      sheet.getColumn(22).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(23).font = {
+        size: 10,
+      };
+      sheet.getColumn(23).width = 9;
+      sheet.getColumn(23).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(24).font = {
+        size: 10,
+      };
+      sheet.getColumn(24).width = 8;
+      sheet.getColumn(24).alignment = {
+        vertical: "middle",
+        horizontal: "right",
+      };
+
+      sheet.getColumn(25).font = {
+        size: 10,
+      };
+      sheet.getColumn(25).width = 8;
       sheet.getColumn(25).alignment = {
         vertical: "middle",
-        horizontal: "center",
+        horizontal: "right",
       };
+
+      sheet.getColumn(26).font = {
+        size: 10,
+      };
+      sheet.getColumn(26).width = 8;
       sheet.getColumn(26).alignment = {
         vertical: "middle",
-        horizontal: "center",
+        horizontal: "right",
       };
+
+      sheet.getColumn(27).font = {
+        size: 10,
+      };
+      sheet.getColumn(27).width = 3.57;
       sheet.getColumn(27).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(28).font = {
+        size: 10,
+      };
+      sheet.getColumn(28).width = 13.71;
       sheet.getColumn(28).alignment = {
         vertical: "middle",
-        horizontal: "center",
+        horizontal: "left",
+        wrapText: true,
       };
 
-
+      sheet.getColumn(29).font = {
+        size: 10,
+      };
+      sheet.getColumn(29).width = 5;
       sheet.getColumn(29).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(30).font = {
+        size: 10,
+      };
+      sheet.getColumn(30).width = 3.57;
       sheet.getColumn(30).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(31).font = {
+        size: 10,
+      };
+      sheet.getColumn(31).width = 15;
       sheet.getColumn(31).alignment = {
         vertical: "middle",
-        horizontal: "center",
+        horizontal: "left",
+        wrapText: true,
       };
+
+      sheet.getColumn(32).font = {
+        size: 10,
+      };
+      sheet.getColumn(32).width = 5;
       sheet.getColumn(32).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(33).font = {
+        size: 10,
+      };
+      sheet.getColumn(33).width = 9;
       sheet.getColumn(33).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(34).font = {
+        size: 10,
+      };
+      sheet.getColumn(34).width = 9;
       sheet.getColumn(34).alignment = {
         vertical: "middle",
         horizontal: "center",
       };
+
+      sheet.getColumn(35).font = {
+        size: 10,
+      };
+      sheet.getColumn(35).width = 23.29;
       sheet.getColumn(35).alignment = {
         vertical: "middle",
         horizontal: "left",
+        wrapText: true,
       };
+
+      sheet.getColumn(36).font = {
+        size: 10,
+      };
+      sheet.getColumn(36).width = 20.71;
       sheet.getColumn(36).alignment = {
         vertical: "middle",
         horizontal: "left",
-      };
-      // sheet.getColumn(30).alignment = { vertical: "middle", horizontal: "center" };
-      // sheet.getColumn(31).alignment = { vertical: "middle", horizontal: "center" };
-      sheet.getColumn(38).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-      sheet.getColumn(39).alignment = {
-        vertical: "middle",
-        horizontal: "center",
+        wrapText: true,
       };
 
+      sheet.getColumn(37).font = {
+        size: 10,
+      };
+      sheet.getColumn(37).width = 13.71;
+      sheet.getColumn(37).alignment = {
+        vertical: "middle",
+        horizontal: "left",
+        wrapText: true,
+      };
+
+      sheet.getColumn(38).font = {
+        size: 10,
+      };
+      sheet.getColumn(38).width = 7.71;
+      sheet.getColumn(38).alignment = {
+        vertical: "middle",
+        horizontal: "left",
+        wrapText: true,
+      };
+
+      sheet.getColumn(39).font = {
+        size: 10,
+      };
+      sheet.getColumn(39).width = 7;
+      sheet.getColumn(39).alignment = {
+        vertical: "middle",
+        horizontal: "left",
+        wrapText: true,
+      };
+
+      sheet.getColumn(40).font = {
+        size: 10,
+      };
+      sheet.getColumn(40).width = 7;
+      sheet.getColumn(40).alignment = {
+        vertical: "middle",
+        horizontal: "left",
+        wrapText: true,
+      };
+
+      //表頭
+      //給予A1標題
+      sheet.getCell("A1").value = "電商活動提品商品總表";
+      //A1~AQ1 合併儲存格
+      sheet.mergeCells("A1", "AO1");
+      // 第一ROW高度 48
+      sheet.getRow(1).height = 48;
+      // 第二ROW高度 48
+      sheet.getRow(2).height = 48;
+      // 第四
+      sheet.getColumn(4).font = {
+        size: 10,
+      };
+      sheet.getRow(1).font = {
+        size: 22,
+      };
+      sheet.getRow(1).alignment = {
+        vertical: "middle",
+        horizontal: "left",
+      };
+
+      sheet.getRow(2).alignment = {
+        vertical: "middle",
+        horizontal: "center",
+        wrapText: true,
+      };
+
+      sheet.getCell("I2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("J2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("M2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("P2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("U2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("V2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("W2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("X2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("Y2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("AK2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("AM2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      sheet.getCell("AN2").fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "FFFFe462",
+        },
+      };
+      /**
+       * 第四Column是背景要黃色
+       */
       sheet.getColumn(4).eachCell({ includeEmpty: true }, function (cell) {
         sheet.getCell(cell.address).fill = {
           type: "pattern",
@@ -672,16 +952,25 @@ export default {
           },
         };
       });
-
       sheet.getRow(1).eachCell({ includeEmpty: true }, function (cell) {
         sheet.getCell(cell.address).fill = {
           type: "pattern",
           pattern: "solid",
           fgColor: {
-            argb: "FF003D96",
+            argb: "FFFFFF",
           },
         };
       });
+
+      // sheet.getRow(2).eachCell({ includeEmpty: true }, function (cell) {
+      //   sheet.getCell(cell.address).fill = {
+      //     type: "pattern",
+      //     pattern: "solid",
+      //     fgColor: {
+      //       argb: "FF003D96",
+      //     },
+      //   };
+      // });
 
       // 表格裡面的資料都填寫完成之後，訂出下載的callback function
       // 異步的等待他處理完之後，創建url與連結，觸發下載
@@ -696,13 +985,12 @@ export default {
         exportExcelLoading.value = false;
       });
     };
-
     return {
       btnCopyAdd,
       tabPosition,
       btnGroupAction,
       currPage,
-      applyCondition,
+      isShowSubTabs,
       tabClick,
       btnAddGroup,
       // btnSetGroup,
@@ -711,6 +999,8 @@ export default {
       btnAddNewItem,
       btnExportExcel,
       exportExcelLoading,
+      btnNoLongerBeSold,
+      btnWithdraw,
     };
   },
 };
@@ -719,7 +1009,7 @@ export default {
 <template>
   <div class="box">
     <!-- 申請 -->
-    <div class="apply dBtnContent" v-show="applyCondition">
+    <div class="apply dBtnContent" v-show="isShowSubTabs">
       <div class="dRadio">
         <el-radio
           v-model="tabPosition"
@@ -847,6 +1137,9 @@ export default {
       <el-button type="primary" size="small" @click="btnCopyAdd()">
         複製新增</el-button
       >
+      <el-button type="primary" size="small" @click="btnWithdraw()">
+        抽回</el-button
+      >
       <el-button
         type="primary"
         size="small"
@@ -855,6 +1148,25 @@ export default {
         >匯出商品總表</el-button
       >
     </div>
+
+    <!-- 開檔 -->
+    <div class="OnSelf dBtnContent" v-show="currPage == 60">
+      <!-- <el-button type="primary" size="small">修改</el-button> -->
+      <el-button type="primary" size="small" @click="btnCopyAdd()">
+        複製新增</el-button
+      >
+      <el-button
+        type="primary"
+        size="small"
+        @click="btnExportExcel"
+        :loading="exportExcelLoading"
+        >匯出商品總表</el-button
+      >
+      <el-button type="primary" size="small" @click="btnNoLongerBeSold()">
+        下架</el-button
+      >
+    </div>
+
     <div class="dRefresh" @click="btnRefresh_click">
       <el-icon :size="29"><Refresh /></el-icon>
     </div>

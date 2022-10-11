@@ -15,6 +15,13 @@
       groupList:[],
     },
     actions: {
+     /**
+     * 部分按鈕的事件
+     * 申請:揀選、退回修改、刪除
+     * 刪除:退回申請、刪除
+     * 檢核:同意
+     * 確認:返回製作
+     */
       btnGroupAction({
         commit
       }, params) {
@@ -29,6 +36,9 @@
           return res.data;
         })
       },
+      /**
+       * 群組設定
+       */
       btnCRUDGroup({
         commit
       }, params) {

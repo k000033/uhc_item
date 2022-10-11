@@ -10,12 +10,14 @@ import openDialog from "./OpenDialog.vue";
 import openGroup from "./OpenGroup.vue";
 import openAddDialog from "./AddNewItem/openAddDialog.vue";
 import { apiUseAgGridHandel } from "../componentAPI/index";
+import openSettingTimeDialog from '../components/NoLongerBeSold/SettingTimeDilaog.vue'
 export default {
   components: {
     AgGridVue,
     openDialog,
     openGroup,
     openAddDialog,
+    openSettingTimeDialog
   },
   setup() {
     const store = useStore();
@@ -160,9 +162,9 @@ export default {
     //   return suggestedNextCell;
     // };
 
-    function getRowNodeId(rowData) {
+    function getRowId(rowData) {
       //rowData 會有row的資料
-      return rowData.DOC_ID;
+      return rowData.data.DOC_ID;
     }
 
     var ag_Text = { page: "頁" };
@@ -171,7 +173,7 @@ export default {
       // navigateToNextCell,
       // openDialog,
       ag_Text,
-      getRowNodeId,
+      getRowId,
       onCellDbClicked,
       isFirstColumn,
       loading,
@@ -184,18 +186,36 @@ export default {
           filter: "agTextColumnFilter",
           width: "100px",
           checkboxSelection: isFirstColumn, //   在欄位設定 true 是 針對那一行增加 checkbox
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "狀態",
           field: "STATUS_NAME",
           filter: "agTextColumnFilter",
           width: "70px",
+          cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "活動檔期",
           field: "PROMO_NAME",
           filter: "agTextColumnFilter",
           width: "200px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         // {
         //   headerName: "活動起迄日",
@@ -209,6 +229,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "100px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "供應商",
@@ -216,6 +242,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "140px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "店內碼",
@@ -223,6 +255,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "135px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "商品名稱",
@@ -230,6 +268,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "380px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "銷售起迄日",
@@ -237,6 +281,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "120px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "促銷售價",
@@ -244,6 +294,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "110px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "產品別",
@@ -251,6 +307,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "100px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "銷售店群",
@@ -258,6 +320,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "110px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "條碼",
@@ -265,6 +333,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "120px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "活動主題",
@@ -272,6 +346,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "140px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "異動日期",
@@ -279,6 +359,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "120px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
         {
           headerName: "異動人員",
@@ -286,6 +372,12 @@ export default {
           sortable: true,
           filter: "agTextColumnFilter",
           width: "120px",
+                    cellClassRules: {
+            txtBlue: params => params.data.ERR_TYPE ==1,
+            txtPurple: params => params.data.ERR_TYPE ==2,
+            txtRed: params => params.data.ERR_TYPE ==3,
+            txtBlack: params => params.data.ERR_TYPE ==0,
+        },
         },
       ],
       defaultColDef: {
@@ -323,7 +415,7 @@ export default {
     :suppressRowClickSelection="true"
     @cell-DoubleClicked="onCellDbClicked"
     :pagination="true"
-    :getRowNodeId="getRowNodeId"
+  
     :localeText="ag_Text"
   >
   </ag-grid-vue>
@@ -332,8 +424,11 @@ export default {
   <openDialog />
   <openGroup />
   <openAddDialog />
+  <openSettingTimeDialog/>
   <!-- </el-dialog> 
   <-->
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+</style>

@@ -159,6 +159,7 @@ export default {
     onMounted(() => {
       openPromoDialog();
       fnGetLineList();
+      document.title='uhc.item'
     });
 
     // 開啟 promo list Dialog，並打API取得promo list 資料
@@ -231,7 +232,7 @@ export default {
     };
 
     // 預設第一個頁籤
-    const currentTab = ref("Apply_view");
+    const currentTab = ref("10");
     // 更換頁籤
     const handleClick = (tab) => {
       currentPage.value = tab.instance.attrs["data-page"];
@@ -319,32 +320,38 @@ export default {
         <el-tabs v-model="currentTab" @tab-click="handleClick" type="card">
           <el-tab-pane
             label="申請"
-            name="Apply_view"
+            name="10"
             data-page="10"
             :disabled="loading"
           ></el-tab-pane>
           <el-tab-pane
             label="製作"
-            name="Make_view"
+            name="20"
             data-page="20"
             :disabled="loading"
           ></el-tab-pane>
           <el-tab-pane
             label="檢核"
-            name="Check_view"
+             name="30"
             data-page="30"
             :disabled="loading"
           ></el-tab-pane>
           <el-tab-pane
             label="確認"
-            name="Ensure_view"
+             name="40"
             data-page="40"
             :disabled="loading"
           ></el-tab-pane>
           <el-tab-pane
-            label="上架"
-            name="OnSelf_view"
+            label="上架" 
+            name="50"
             data-page="50"
+            :disabled="loading"
+          ></el-tab-pane>
+        <el-tab-pane
+            label="開檔"
+             name="60"
+            data-page="60"
             :disabled="loading"
           ></el-tab-pane>
         </el-tabs>

@@ -4,13 +4,13 @@ import axios from 'axios'
 const defineAxios = axios.create({
       baseURL: 'http://localhost/work/carryProject.ashx' //測試
 
-   // baseURL: `${location.origin}/work/carryProject.ashx` //正式
+      //baseURL: `${location.origin}/work/carryProject.ashx` //正式
 });
 
 
 export const useDefineAxios = (params) => {
     console.log('-- _NAME === ' + 'uhc.Item');
-    console.log('-- _TYPE === ' + 'UPDATE');
+    console.log('-- _TYPE === ' + '');
     console.log('-- DOC_ID === ' + params.DOC_ID);
     console.log('-- PROMO_ID === ' + params.PROMO_ID);
     console.log('-- PROMO_IDX === ' + params.PROMO_IDX);
@@ -24,10 +24,11 @@ export const useDefineAxios = (params) => {
     console.log('-- ACTION_TYPE === ' + params.ACTION_TYPE);
     console.log('-- USER_ID === ' + params.USER_ID);
     console.log('-- GID === ' + params.GID);
+    console.log('-- D_DATE === ' + params.D_DATE);
     return defineAxios.get('', {
         params: {
-            _NAME: 'uhc.Item_2',
-            _TYPE: 'UPDATE',
+            _NAME: 'uhc.Item',
+            _TYPE: '',
             DOC_ID: params.DOC_ID,
             PROMO_ID: params.PROMO_ID,
             PROMO_IDX: params.PROMO_IDX,
@@ -40,7 +41,8 @@ export const useDefineAxios = (params) => {
             CODE_VALUE: params.CODE_VALUE,
             ACTION_TYPE: params.ACTION_TYPE,
             USER_ID: params.USER_ID,
-            GID:params.GID
+            GID:params.GID,
+            D_DATE:params.D_DATE
         }
     });
 };

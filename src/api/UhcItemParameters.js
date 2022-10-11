@@ -17,6 +17,7 @@ export const useUhcItemParams = function () {
     this.ACTION_TYPE = "";
     this.USER_ID = `${username}`;
     this.GID = '';
+    this.D_DATE='';
 };
 
 useUhcItemParams.prototype.initial = function () {
@@ -33,6 +34,7 @@ useUhcItemParams.prototype.initial = function () {
     this.CODE_VALUE = "";
     this.ACTION_TYPE = "";
     this.GID = "";
+    this.D_DATE='';
 };
 // Excel 參數
 export const useExcelParams = function () {

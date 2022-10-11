@@ -1,4 +1,3 @@
-
 <template>
   <router-view />
 </template>
@@ -15,7 +14,6 @@
 body {
   /* padding: 8px; */
   overflow: hidden;
-
 }
 
 /* Dialog */
@@ -47,7 +45,7 @@ body {
 .el-drawer__header {
   padding: 0px !important;
   border-bottom: 1px solid !important;
-  margin: 0  6px !important;
+  margin: 0 6px !important;
 }
 .el-drawer__body {
   padding: 0 0px !important;
@@ -62,70 +60,61 @@ body {
 }
 .el-tabs--card > .el-tabs__header .el-tabs__item:first-child {
 }
-.el-tabs__header
-{
+.el-tabs__header {
   margin: 0 0 0px !important;
 }
-.el-tabs__item{
+.el-tabs__item {
   height: 25px !important;
   line-height: 25px !important;
   font-size: 12px !important;
 }
 
-.el-radio-button__original-radio:checked+.el-radio-button__inner
-{
+.el-radio-button__original-radio:checked + .el-radio-button__inner {
   color: #fff;
   background-color: #e6a23c !important;
   border: 1px solid #e6a23c !important;
   box-shadow: -1px 0 0 0 #e6a23c !important;
 }
 
-.el-radio
-{
+.el-radio {
   margin-right: 15px !important;
 }
 
-.el-select__popper{
+.el-select__popper {
   z-index: 3400 !important;
 }
 
-.el-date-editor{
+.el-date-editor {
   width: 100% !important;
 }
 
-.el-popper
-{
+.el-popper {
   z-index: 3400 !important;
 }
 
- .editIng .el-input__inner
-{
+.editIng .el-input__inner {
   background: #fff9ab !important;
-} 
-.el-input__inner
-{
+}
+.el-input__inner {
   box-shadow: 0 0 0 1px #aaa !important  ;
   width: 100%;
   font-size: 10pt !important;
-  color:#000 !important;
+  color: #000 !important;
 }
-.el-input__inner[disabled]
-{
+.el-input__inner[disabled] {
   background: #fff !important;
   color: #606266 !important;
 }
 
-.dSltSub .el-input--small .el-input__inner{
+.dSltSub .el-input--small .el-input__inner {
   height: 25px !important;
 }
 
-.el-select
-{
+.el-select {
   width: 100% !important;
 }
 
-.el-radio 
-{
+.el-radio {
   color: #fff !important;
 }
 /* 
@@ -134,98 +123,121 @@ body {
    height: 400px !important;
    top:auto !important ;
 } */
-.el-input--small .el-input__inner 
-{
+.el-input--small .el-input__inner {
   height: 22px !important;
 }
 
- .dDialog_Tab .el-tabs__item
-{
+.dDialog_Tab .el-tabs__item {
   font-size: 16px !important;
 }
 
-.el-notification__title
-{
+.el-notification__title {
   font-size: 14px !important;
 }
-.el-dialog__close
-{
-  font-size: 20px !important; 
-    color: red !important;
-    border: 1px solid !important;
-    border-radius: 9px !important;
-    &:hover{
-      color:  #79bbff !important;
-    }
+.el-dialog__close {
+  font-size: 20px !important;
+  color: red !important;
+  border: 1px solid !important;
+  border-radius: 9px !important;
+  &:hover {
+    color: #79bbff !important;
+  }
 }
 
-.el-select-dropdown__item
-{
+.el-select-dropdown__item {
   font-size: 12px !important;
   height: 24px !important ;
 }
 
-.elInput .el-input__inner:read-only
-{
-   box-shadow: none !important;
+.elInput .el-input__inner:read-only {
+  box-shadow: none !important;
 }
 
-.elSelect .el-input__inner:disabled
-{
-   box-shadow: none !important;
+.elSelect .el-input__inner:disabled {
+  box-shadow: none !important;
 }
 
-.elSelect .el-input__inner:disabled + .el-input__suffix
-{
-   display: none;
+.elSelect .el-input__inner:disabled + .el-input__suffix {
+  display: none;
 }
 
-.dDialog .el-dialog__body{
-      min-height: 412px;
+.dDialog .el-dialog__body {
+  min-height: 412px;
 }
 
-.ag-watermark{
-   display: none !important;
+.ag-watermark {
+  display: none !important;
 }
 
-.dwarningDialog .el-dialog__header
-{
+.dwarningDialog .el-dialog__header {
   background: #fff !important;
   border: none !important;
   padding: 15px !important;
   padding-bottom: 10px !important;
 }
 
-.dwarningDialog .el-dialog__close{
+.dwarningDialog .el-dialog__close {
   border: none !important;
   color: #909399 !important;
 }
-.dwarningDialog .el-dialog__headerbtn{
-      padding-top: 5px !important;
+.dwarningDialog .el-dialog__headerbtn {
+  padding-top: 5px !important;
 }
 
-.dwarningDialog .el-dialog__body
-{
+.dwarningDialog .el-dialog__body {
   min-height: 100%;
 }
 
 .el-tabs__item.is-active {
-    color: var(--el-color-primary) !important;
+  color: var(--el-color-primary) !important;
 }
-.cbkAdd_Type .el-checkbox.el-checkbox--large
-{
+.cbkAdd_Type .el-checkbox.el-checkbox--large {
   height: 0 !important;
 }
 
-.editIng .el-select-v2__wrapper{
- background: #fff9ab !important;
+.editIng .el-select-v2__wrapper {
+  background: #fff9ab !important;
 }
 
 .noMOM {
   color: red !important;
 }
 
-.el-autocomplete .el-input__inner{
+.el-autocomplete .el-input__inner {
   height: 22px !important;
+}
+
+.settimtDateWrap {
+  .el-input__inner {
+    padding-left: 31px !important;
+  }
+}
+//elementUi 日期樣式
+.el-date-table td {
+  height: 23px !important;
+}
+.el-date-table-cell {
+  height: 23px !important;
+}
+.el-date-picker__header {
+  margin: 12px 12px 0 !important;
+}
+.el-picker-panel__content {
+  margin: 0 15px 15px !important;
+}
+
+// AgGrid
+
+.txtBlue {
+  color: #0000e3;
+}
+.txtPurple {
+  color: #ed08db;
+}
+.txtRed {
+  color: #ea0000;
+}
+.txtBlack {
+  color: #000000;
 }
 </style>

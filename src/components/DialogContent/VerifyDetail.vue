@@ -584,7 +584,6 @@ export default {
                   ),
                 }"
                 :disabled="isReadOnly"
-                @clear = "sltTID_clear"
               >
                 <el-option
                   v-for="item in getTID.data"

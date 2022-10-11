@@ -3,6 +3,7 @@ import { useStore } from "vuex";
 import { computed, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { apiUseUhcItemParams } from "../../api/index";
+import {apiUseAgGridHandel} from '../../componentAPI/index'
 export default {
   components: {
     ElMessage,
@@ -10,6 +11,7 @@ export default {
   setup() {
     const store = useStore();
     const ucItemParams = new apiUseUhcItemParams();
+    const {fetchAgGridData,getGroupData,itemCheckAction,getDetail}  =apiUseAgGridHandel()
     const getAgGridDataList = computed(() => {
       return store.getters["getAgGridType2Data"];
     });
@@ -63,15 +65,19 @@ export default {
       const preDoc_id = agGridDisplayDataDOC_ID.value[idx - 1];
       //將上一筆 doc_id設成目前的doc_id
       store.commit("setCurrDoc_id", preDoc_id);
+
+      //從AgGridx尋找上一筆的資料，儲存起來，並撈SP取得明細
       getAgGridDataList.value.data.forEach((item) => {
         if (item.DOC_ID == preDoc_id) {
           //將目前AgGridData資料設定 上一筆 AgGridData資料
           store.commit("detailDialog/setAgGridData", item);
-          ucItemParams.initial();
-          ucItemParams.DOC_ID = preDoc_id;
-          ucItemParams.DETAIL_PAGE = 1;
-          //撈上一筆資料明細
-          store.dispatch("detailDialog/fetchDetailData", ucItemParams);
+                    getDetail(preDoc_id);
+          itemCheckAction(preDoc_id);
+          // ucItemParams.initial();
+          // ucItemParams.DOC_ID = preDoc_id;
+          // ucItemParams.DETAIL_PAGE = 1;
+          // //撈上一筆資料明細
+          // store.dispatch("detailDialog/fetchDetailData", ucItemParams);
         }
       });
     };
@@ -102,15 +108,18 @@ export default {
       const nextDoc_id = agGridDisplayDataDOC_ID.value[idx + 1];
       //將下一筆 doc_id設成目前的doc_id
       store.commit("setCurrDoc_id", nextDoc_id);
+       //從AgGridx尋找下一筆的資料，儲存起來，並撈SP取得明細
       getAgGridDataList.value.data.forEach((item) => {
         if (item.DOC_ID == nextDoc_id) {
           //將目前AgGridData資料設定 下一筆 AgGridData資料
           store.commit("detailDialog/setAgGridData", item);
-          ucItemParams.initial();
-          ucItemParams.DOC_ID = nextDoc_id;
-          ucItemParams.DETAIL_PAGE = 1;
-          //撈下一筆資料明細
-          store.dispatch("detailDialog/fetchDetailData", ucItemParams);
+          getDetail(nextDoc_id);
+          itemCheckAction(nextDoc_id);
+          // ucItemParams.initial();
+          // ucItemParams.DOC_ID = nextDoc_id;
+          // ucItemParams.DETAIL_PAGE = 1;
+          // //撈下一筆資料明細
+          // store.dispatch("detailDialog/fetchDetailData", ucItemParams);
         }
       });
     };
@@ -123,7 +132,7 @@ export default {
       // 取得有編輯過的欄位數量
       let edited = document.getElementsByClassName("editIng").length;
       if (edited > 0) {
-        // prev 上一頁，next 下一頁
+        //紀錄是案上一筆還是下一筆 prev 上一頁，next 下一頁
         prevOrNext.value = type;
         //開啟Dialog
         isSaveDialog.value = true;
@@ -132,9 +141,12 @@ export default {
         type == "prev" ? getPrevItemDetail() : getNextItemDetail();
       }
     };
-
-    const btnWran = (boolen) => {
-      if (boolen) {
+   /**
+     * 放棄修改，移除 .editIng.
+     * @param {Boolean} boolean true 放棄編輯 false 取消
+     */
+    const btnWran = (boolean) => {
+      if (boolean) {//放棄編輯
         // document.getElementsByClassName("editIng")
         const boxes = document.querySelectorAll(".editIng");
         boxes.forEach((box) => {
